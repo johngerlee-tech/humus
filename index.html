@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>黑金魔法術：永續食物循環系統 - 互動式 RPG 答題遊戲</title>
+  <!-- 引入可愛活潑圓潤字體 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+  <!-- 樣式表 (防快取版本) -->
+  <link rel="stylesheet" href="css/animations.css?v=20261004">
+  <link rel="stylesheet" href="css/style.css?v=20261004">
+</head>
+<body>
+
+  <!-- 遊戲主舞台 -->
+  <div id="game-app">
+
+    <!-- ==============================================
+         1. 主畫面 (Start Screen)
+    ============================================== -->
+    <section id="start-screen" style="background-image: url('assets/images/title_bg.jpg');">
+      <div class="start-overlay"></div>
+
+      <!-- 遊戲 LOGO 標題 -->
+      <div class="start-header">
+        <h1 class="game-logo-title">黑金魔法術：永續食物循環系統</h1>
+        <p class="game-sub-title">~ 土地到餐桌的綠色奇蹟 · 溪洲魔法生態學院 ~</p>
+      </div>
+
+      <!-- ==============================================
+           1.A 門戶首頁視圖 (預設開啟呈現：僅二個主要入口按鈕)
+      ============================================== -->
+      <div id="start-portal-view" class="start-portal-card">
+        <div class="story-synopsis portal-synopsis">
+          🌿 <strong>【生態冒險序幕】</strong>落葉與剩食不是垃圾，而是大地的黑色黃金！化身學院守護勇者，闖過惜食、分類與堆肥試煉，完成綠色生命循環！
+        </div>
+
+        <!-- 二個主要入口按鈕 -->
+        <div class="portal-buttons-column">
+          <button id="btn-portal-enter-game" class="jrpg-btn btn-primary-large portal-main-btn" title="點擊展開角色整備並開始黑金冒險">
+            <span class="portal-btn-icon">⚔️</span>
+            <span class="portal-btn-text">進入遊戲</span>
+          </button>
+          <button id="btn-portal-open-admin" class="jrpg-btn btn-secondary portal-sub-btn" title="點擊進入教師題庫管理與自訂圖片後台">
+            <span class="portal-btn-icon">⚙️</span>
+            <span class="portal-btn-text">教師 / 管理者題庫後台</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ==============================================
+           1.B 角色整備與主題選擇視圖 (點擊進入遊戲後才出現)
+      ============================================== -->
+      <div id="start-setup-view" class="start-content-card hidden">
+        <div class="story-synopsis">
+          🧙‍♂️ <strong>【出征整備】</strong>請輸入勇者姓名、挑選守護角色並選擇要挑戰的主題測驗：
+        </div>
+
+        <!-- 學生姓名輸入 -->
+        <div class="student-input-box" style="margin-bottom: 6px; text-align: left;">
+          <label for="student-name-input" style="font-size: 12px; color: var(--gold-text); display: block; margin-bottom: 3px; font-weight: bold;">
+            👤 請輸入學生姓名 / 座號（必填）：
+          </label>
+          <input type="text" id="student-name-input" class="jrpg-input" style="width: 100%; text-align: center; font-size: 14px; padding: 6px;" placeholder="例如：王小明 或 60105王小明">
+        </div>
+
+        <!-- 四大守護勇者選擇 -->
+        <div class="hero-selection-box" style="margin-bottom: 6px; text-align: left;">
+          <label style="font-size: 12px; color: #ffe066; display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; font-weight: bold;">
+            <span>🧙‍♂️ 選擇你的黑金守護勇者：</span>
+            <span id="selected-hero-rhyme" style="font-size: 11px; color: #a29bfe; font-weight: normal;">口訣：落葉果皮變黑金</span>
+          </label>
+          <div id="hero-selection-grid" class="hero-selection-grid">
+            <!-- 由 JS 動態生成 4 位勇者選擇卡片 -->
+          </div>
+          <div id="hero-detail-summary" class="hero-detail-summary">
+            <!-- 動態顯示所選勇者的屬性、六維數值與專屬特技 -->
+          </div>
+        </div>
+
+        <!-- 主題測驗遊戲選擇 -->
+        <div class="exam-selection-box" style="margin-bottom: 8px; text-align: left;">
+          <label for="exam-select" style="font-size: 12px; color: #34d399; display: block; margin-bottom: 3px; font-weight: bold;">
+            🎯 選擇老師派送的主題測驗遊戲：
+          </label>
+          <select id="exam-select" class="jrpg-select" style="width: 100%; font-size: 13px; padding: 5px 8px;">
+            <option value="">載入測驗清單中...</option>
+          </select>
+          <div id="exam-info-hint" style="font-size: 11px; color: #a4b0be; margin-top: 3px; line-height: 1.2;"></div>
+        </div>
+
+        <!-- 按鈕群 -->
+        <div class="start-buttons-group">
+          <button id="btn-start-game" class="jrpg-btn btn-primary-large" style="padding: 8px 16px; font-size: 15px;">⚔️ 展開黑金冒險 (進入生態地圖)</button>
+          <button id="btn-setup-back-to-portal" class="jrpg-btn btn-secondary" style="padding: 6px 14px; font-size: 13px;">🏠 返回主選單</button>
+        </div>
+      </div>
+
+      <!-- 頁尾版權與創用 CC 授權宣告 -->
+      <footer class="start-footer-credit">
+        <div class="footer-author-row">
+          Made by <a href="https://kentxchang.blogspot.tw" target="_blank" rel="noopener noreferrer" class="footer-author-link">阿剛老師</a> ｜ 溪洲魔法生態學院
+        </div>
+        <div class="footer-cc-license">
+          本作品採用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant" target="_blank" rel="noopener noreferrer" class="cc-badge-link">創用 CC 姓名標示-非商業性-相同方式分享 (CC BY-NC-SA 4.0 國際)</a> 授權釋出
+        </div>
+      </footer>
+    </section>
+
+    <!-- ==============================================
+         2. 永續食物循環世界大地圖 (World Map Screen)
+    ============================================== -->
+    <section id="worldmap-screen" class="hidden">
+      <!-- 大地圖視角區域 -->
+      <div id="worldmap-container" class="worldmap-viewport" style="background-image: url('assets/images/world_map.jpg');">
+
+        <!-- 大地圖頂部狀態導覽 -->
+        <div class="map-top-bar">
+          <div class="map-title-badge">
+            <span class="map-title-text">🗺️ 永續食物循環生態大地圖</span>
+            <span class="map-guide-hint">【操作指引】使用鍵盤 WASD / 方向鍵行走，或點擊地圖任意地點移動</span>
+          </div>
+          <div class="map-nav-btns">
+            <button id="btn-toggle-sound" class="top-bar-btn">🔊 音效開啟</button>
+            <button id="btn-map-admin" class="top-bar-btn">⚙️ 題庫管理</button>
+            <button id="btn-map-to-title" class="top-bar-btn">🏠 返回主選單</button>
+          </div>
+        </div>
+
+        <!-- 關卡地點節點容器 -->
+        <div id="map-nodes-container">
+          <!-- 由 JS 動態生成關卡圖釘 -->
+        </div>
+
+        <!-- 玩家角色小人 -->
+        <div id="map-player-sprite">
+          <div class="map-avatar-circle">
+            <img id="map-player-avatar-img" src="assets/images/avatar_purple.png" alt="勇者">
+          </div>
+          <div id="map-player-name-tag" class="map-player-name-tag">黑金魔法師莫莫</div>
+        </div>
+
+        <!-- 大地圖右下角：出戰角色快速切換面板 -->
+        <div id="map-hero-switcher" class="map-hero-switcher">
+          <div class="switcher-header">
+            <span class="switcher-icon">🧙‍♂️</span>
+            <span class="switcher-text">切換出戰角色</span>
+          </div>
+          <div id="map-hero-switcher-list" class="switcher-list">
+            <!-- 由 JS 動態生成四大勇者快速切換按鈕 -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==============================================
+         3. 戰鬥畫面 (Battle Screen)
+    ============================================== -->
+    <section id="battle-screen" class="hidden">
+
+      <!-- 上半部：視覺區 (左右對峙舞台：主角在左、魔王在右) -->
+      <div id="battle-visual-container" class="battle-visual-section" style="background-image: url('assets/images/forest_bg.jpg');">
+        
+        <!-- 頂部對峙狀態條 (左方主角 / 右方魔王) -->
+        <div class="battle-versus-top-bar">
+          <!-- 左側：主角簡易狀態 -->
+          <div class="hero-mini-status">
+            <div class="hero-mini-name">
+              <span id="top-hero-name" class="hero-title-text">🧙‍♂️ 莫莫 Momo</span>
+              <span id="top-hero-level" class="hero-lvl-tag">Lv. 1</span>
+            </div>
+            <div class="bar-container mini-bar-container">
+              <div id="top-hero-hp-bar" class="bar-fill bar-hp-player" style="width: 100%;"></div>
+            </div>
+            <div class="hero-hp-label">血量: <span id="top-hero-hp-text">100 / 100</span></div>
+          </div>
+
+          <!-- 中間對決 VS 徽章與對戰雙方名稱 -->
+          <div class="versus-center-zone">
+            <div class="versus-names-banner">
+              <span id="versus-hero-name" class="vs-fighter-name vs-hero">莫莫</span>
+              <span class="versus-badge-core">VS</span>
+              <span id="versus-boss-name" class="vs-fighter-name vs-boss">浪費剩食怪</span>
+            </div>
+          </div>
+
+          <!-- 右側：敵人魔王狀態 -->
+          <div class="enemy-mini-status">
+            <div class="enemy-mini-name">
+              <span id="enemy-name" class="enemy-name-title">浪費剩食怪</span>
+              <span id="chapter-indicator" class="chapter-tag">第一章：學院惜食大廳</span>
+            </div>
+            <div class="bar-container mini-bar-container">
+              <div id="enemy-hp-bar" class="bar-fill bar-hp-enemy" style="width: 100%;"></div>
+            </div>
+            <div class="enemy-hp-label">血量: <span id="enemy-hp-text">100 / 100</span></div>
+            <!-- 關主攻擊倒數：秒數與秒數正下方進度條 (跑到 0 時攻擊) -->
+            <div class="boss-attack-timer-wrapper" id="boss-attack-timer-wrapper" style="margin-top: 6px; padding: 6px 8px; background: rgba(15, 23, 42, 0.75); border: 1.5px solid rgba(251, 191, 36, 0.5); border-radius: 10px; display: flex; flex-direction: column; gap: 4px;">
+              <div class="boss-timer-label-row" style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="boss-timer-title" style="color: #fbbf24; font-size: 12px; font-weight: 800; display: flex; align-items: center; gap: 4px;"><span class="boss-timer-pulse-icon">⚡</span> 關主突襲倒數</span>
+                <span id="boss-timer-sec" class="boss-timer-sec" style="color: #fef08a; font-family: monospace, sans-serif; font-size: 13px; font-weight: 900;">5.0s</span>
+              </div>
+              <!-- 秒數正下方的進度條 (跑到 0 時就攻擊) -->
+              <div class="boss-timer-bar-track" style="width: 100%; height: 12px; background: rgba(0, 0, 0, 0.7); border-radius: 999px; border: 1.5px solid rgba(251, 191, 36, 0.4); overflow: hidden; position: relative; box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.8);">
+                <div id="boss-timer-bar-fill" class="boss-timer-bar-fill" style="width: 100%; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #f59e0b 0%, #ef4444 100%); box-shadow: 0 0 10px rgba(239, 68, 68, 0.8); transition: width 0.08s linear;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 核心對峙舞台 (主角在左、魔王在右) -->
+        <div class="battle-stage-arena">
+          
+          <!-- 絕技與答對大橫幅公告層 -->
+          <div id="battle-announcement-banner" class="battle-announcement-banner hidden"></div>
+
+          <!-- 對戰即時浮動訊息層 (在兩人對戰畫面中間向上飄散消失) -->
+          <div id="battle-floating-msgs" class="battle-floating-msg-layer"></div>
+
+          <!-- 左方：主角戰鬥立繪舞台 (帶有閃閃發光微光光暈) -->
+          <div id="player-battle-sprite-container" class="player-battle-sprite-wrapper anim-player-idle anim-hero-aura">
+            <div class="player-sprite-inner">
+              <img id="player-battle-sprite-img" src="assets/images/hero_sprite.png" alt="黑金勇者立繪">
+            </div>
+            <div class="player-ground-shadow"></div>
+            <!-- 專屬主角受擊特效與跳字錨點 -->
+            <div id="player-fx-anchor" class="player-fx-anchor"></div>
+          </div>
+
+          <!-- 特效與傷害跳字圖層 (置中覆蓋) -->
+          <div id="battle-fx-overlay" class="battle-fx-layer">
+            <!-- 由 JS 動態生成打擊特效與傷害跳字 -->
+          </div>
+
+          <!-- 右方：魔王立繪舞台 (帶有微光魔煞光暈) -->
+          <div id="enemy-sprite-container" class="enemy-sprite-wrapper anim-float anim-boss-aura">
+            <div class="enemy-sprite-inner">
+              <img id="enemy-sprite-img" src="assets/images/slime_sprite.png" alt="敵人立繪">
+            </div>
+            <div class="enemy-ground-shadow"></div>
+            <!-- 專屬魔王攻擊特效與跳字錨點 -->
+            <div id="enemy-fx-anchor" class="enemy-fx-anchor"></div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- 下半部：狀態與互動區 (三欄配置：左側狀態 | 中央答題攻擊 | 右側特技補給) -->
+      <div class="battle-lower-section">
+
+        <!-- 1. 左部：狀態區 (Player Status) -->
+        <div id="player-status-panel" class="status-section">
+          <div class="player-card-header">
+            <div class="player-avatar-frame">
+              <img id="player-hud-avatar-img" src="assets/images/avatar_purple.png" alt="勇者頭像">
+            </div>
+            <div class="player-meta">
+              <div id="player-hud-name" class="player-name">黑金魔法師 · 莫莫 Momo</div>
+              <div id="player-level" class="player-level-badge">Lv. 1</div>
+            </div>
+          </div>
+
+          <!-- 血量 / MP 血魔條 -->
+          <div class="player-bars">
+            <div class="status-bar-row">
+              <div class="bar-meta">
+                <span class="label-hp">血量 HP</span>
+                <span id="player-hp-text">100 / 100</span>
+              </div>
+              <div class="bar-container">
+                <div id="player-hp-bar" class="bar-fill bar-hp-player" style="width: 100%;"></div>
+              </div>
+            </div>
+
+            <div class="status-bar-row">
+              <div class="bar-meta">
+                <span class="label-mp">精力 MP</span>
+                <span id="player-mp-text">60 / 60</span>
+              </div>
+              <div class="bar-container">
+                <div id="player-mp-bar" class="bar-fill bar-mp-player" style="width: 100%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 道具預覽與分數 -->
+          <div class="player-inventory-preview">
+            <span>蜜露: <strong id="potion-heal-count">2</strong> | 朝露: <strong id="potion-mana-count">2</strong></span>
+            <span>積分: <strong id="player-score" style="color: #ffe066;">0</strong></span>
+          </div>
+        </div>
+
+        <!-- 2. 中部：預設答題攻擊互動區 (直接顯示題目，答完自動跳第2題) -->
+        <div class="quiz-interactive-area" id="quiz-interactive-area">
+          <div id="quiz-panel" class="quiz-panel-inner">
+            <div class="quiz-header-bar">
+              <span id="quiz-category-tag" class="quiz-cat-tag">黑金試煉</span>
+              <!-- 答題中關主突襲倒數警示橫條 -->
+              <div class="quiz-boss-timer-pill" id="quiz-boss-timer-pill" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(220, 38, 38, 0.25); border: 1.5px solid rgba(239, 68, 68, 0.7); border-radius: 999px; padding: 2px 10px; margin-left: 8px;" title="關主突襲倒數：進度歸零時魔王將發動猛烈衝擊！">
+                <span class="quiz-timer-icon" style="font-size: 12px;">⚡</span>
+                <span class="quiz-timer-title" style="font-size: 11.5px; font-weight: 800; color: #fca5a5;">關主突襲倒數</span>
+                <div class="quiz-timer-bar-track" style="width: 65px; height: 8px; background: rgba(0, 0, 0, 0.7); border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.2); overflow: hidden;">
+                  <div id="quiz-boss-timer-bar" class="quiz-timer-bar-fill" style="width: 100%; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #f59e0b 0%, #ef4444 100%); transition: width 0.08s linear;"></div>
+                </div>
+                <span id="quiz-boss-timer-sec" class="quiz-timer-sec" style="font-size: 12px; font-family: monospace, sans-serif; font-weight: 900; color: #fef08a;">5.0s</span>
+              </div>
+              <span class="quiz-action-prompt" style="font-size: 12px; color: #ffe066;">⚔️ 施法攻擊中：請選擇正確答案攻擊關主！</span>
+            </div>
+            <!-- 題目區 -->
+            <div class="quiz-question-card">
+              <span id="quiz-question-text">在自然農耕與生態學中，被稱為「黑色黃金」的是什麼？</span>
+            </div>
+            <!-- 四個選項 (A, B, C, D) 2x2 網格配置 -->
+            <div class="quiz-options-grid">
+              <button class="jrpg-btn quiz-opt-btn" data-index="0">
+                <span class="opt-badge">A</span>
+                <span class="opt-text">選項 1</span>
+              </button>
+              <button class="jrpg-btn quiz-opt-btn" data-index="1">
+                <span class="opt-badge">B</span>
+                <span class="opt-text">選項 2</span>
+              </button>
+              <button class="jrpg-btn quiz-opt-btn" data-index="2">
+                <span class="opt-badge">C</span>
+                <span class="opt-text">選項 3</span>
+              </button>
+              <button class="jrpg-btn quiz-opt-btn" data-index="3">
+                <span class="opt-badge">D</span>
+                <span class="opt-text">選項 4</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. 右部：右側輔助操作欄 (專屬特技、營養補給、撤退) -->
+        <div class="battle-side-actions" id="battle-side-actions">
+          <button id="btn-side-skill" class="jrpg-btn side-action-btn btn-side-skill" type="button" title="消耗精力 MP 施展強化特技" onclick="event.stopPropagation(); BattleManager.toggleSkillPopover();">
+            <span class="side-btn-icon">✨</span>
+            <span class="side-btn-label">專屬特技</span>
+          </button>
+          <button id="btn-side-item" class="jrpg-btn side-action-btn btn-side-item" type="button" title="使用蜜露恢復血量，朝露回充精力" onclick="event.stopPropagation(); BattleManager.toggleItemPopover();">
+            <span class="side-btn-icon">🧪</span>
+            <span class="side-btn-label">營養補給</span>
+          </button>
+          <button id="btn-side-run" class="jrpg-btn side-action-btn btn-side-run" type="button" title="暫時撤退返回生態大地圖" onclick="event.stopPropagation(); BattleManager.returnToMap();">
+            <span class="side-btn-icon">🏃</span>
+            <span class="side-btn-label">撤退地圖</span>
+          </button>
+        </div>
+
+        <!-- 專屬特技彈出選單 (Popover) -->
+        <div id="battle-skill-popover" class="battle-action-popover hidden">
+          <div class="popover-header">
+            <span>✨ 選擇出戰特技 (附帶效果)</span>
+            <button id="btn-close-skill-popover" class="popover-close-btn" type="button">&times;</button>
+          </div>
+          <div class="popover-list">
+            <button id="btn-pop-skill-crit" class="jrpg-btn popover-item-btn" type="button">
+              <span>💥 落葉腐植聚爆 (2.2 倍暴擊)</span>
+              <span class="cost-tag">15 MP</span>
+            </button>
+            <button id="btn-pop-skill-heal" class="jrpg-btn popover-item-btn" type="button">
+              <span>🌿 微生菌絲滋養 (回復 45 血量)</span>
+              <span class="cost-tag">10 MP</span>
+            </button>
+            <button id="btn-pop-skill-fifty" class="jrpg-btn popover-item-btn" type="button">
+              <span>👁️ 堆肥魔眼透視 (排除 2 錯誤選項)</span>
+              <span class="cost-tag">20 MP</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 營養補給彈出選單 (Popover) -->
+        <div id="battle-item-popover" class="battle-action-popover hidden">
+          <div class="popover-header">
+            <span>🧪 營養滋養補給</span>
+            <button id="btn-close-item-popover" class="popover-close-btn" type="button">&times;</button>
+          </div>
+          <div class="popover-list">
+            <button id="btn-pop-item-heal" class="jrpg-btn popover-item-btn" type="button">
+              <span>🍯 蜜源精華露 (立即回復 50 血量)</span>
+              <span class="item-stock-tag" id="pop-heal-stock">剩餘: 2</span>
+            </button>
+            <button id="btn-pop-item-mana" class="jrpg-btn popover-item-btn" type="button">
+              <span>💧 朝露活力滴劑 (立即回復 40 精力)</span>
+              <span class="item-stock-tag" id="pop-mana-stock">剩餘: 2</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 隱藏後備節點 (相容保留) -->
+        <div id="action-main-menu" class="hidden">
+          <button id="btn-cmd-attack" class="hidden"></button>
+          <button id="btn-cmd-skill" class="hidden"></button>
+          <button id="btn-cmd-item" class="hidden"></button>
+          <button id="btn-cmd-run" class="hidden"></button>
+        </div>
+        <div id="action-skill-menu" class="hidden">
+          <button id="btn-skill-crit" class="hidden"></button>
+          <button id="btn-skill-heal" class="hidden"></button>
+          <button id="btn-skill-fifty" class="hidden"></button>
+          <button id="btn-skill-back" class="hidden"></button>
+        </div>
+        <div id="action-item-menu" class="hidden">
+          <button id="btn-item-heal" class="hidden"></button>
+          <button id="btn-item-mana" class="hidden"></button>
+          <button id="btn-item-back" class="hidden"></button>
+        </div>
+        <div id="battle-log-content" class="hidden"></div>
+
+      </div>
+
+    </section>
+
+    <!-- ==============================================
+         4. 大地圖關卡資訊確認視窗 (Stage Info Modal)
+    ============================================== -->
+    <div id="stage-info-modal" class="modal-backdrop hidden">
+      <div class="modal-window" style="max-width: 460px; padding: 20px;">
+        <div id="stage-info-title" style="font-size: 18px; font-weight: 900; color: #fde047; margin-bottom: 12px; text-align: center;">關卡名稱</div>
+        
+        <div style="display: flex; gap: 14px; align-items: center; background: rgba(30, 41, 59, 0.6); padding: 12px; border-radius: 12px; margin-bottom: 16px;">
+          <div style="width: 80px; height: 80px; flex-shrink: 0; background: #0b0f19; border-radius: 10px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1.5px solid #ef4444;">
+            <img id="stage-info-enemy-sprite" src="assets/images/slime_sprite.png" alt="守關魔物" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+          </div>
+          <div style="flex: 1;">
+            <div id="stage-info-enemy-name" style="font-weight: 800; color: #f87171; font-size: 16px;">守關魔物</div>
+            <div id="stage-info-enemy-hp" style="font-size: 13px; color: #ffe066; margin: 2px 0;">HP: 100 | 攻擊力: 12</div>
+            <div id="stage-info-desc" style="font-size: 12px; color: #cbd5e1; line-height: 1.4;">關卡描述說明</div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button id="btn-stage-cancel" class="jrpg-btn btn-secondary" style="flex: 1; padding: 10px;">✖ 留在地圖</button>
+          <button id="btn-stage-enter" class="jrpg-btn btn-primary-large" style="flex: 1.5; font-size: 15px; padding: 10px;">⚔️ 進入挑戰</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==============================================
+         5. 管理者多組題庫後台 Modal
+    ============================================== -->
+    <div id="admin-modal" class="modal-backdrop hidden">
+      <div class="modal-window">
+        <div class="modal-header">
+          <div class="modal-title">⚙️ 教師 / 管理者多組題庫管理系統</div>
+          <button id="btn-close-admin" class="modal-close-btn">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <!-- 登入驗證區塊 -->
+          <div id="admin-auth-section" style="padding: 30px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 14px;">
+            <p style="color: #cbd5e1; font-size: 15px;">此為教師備課與題庫管理控制台，請輸入管理密碼解鎖（預設密碼：admin）：</p>
+            <input type="password" id="admin-password-input" class="jrpg-input" style="width: 260px; text-align: center; font-size: 16px;" placeholder="請輸入密碼">
+            <button id="btn-admin-login" class="jrpg-btn btn-primary-large" style="width: 240px; font-size: 16px; padding: 10px;">解鎖後台</button>
+          </div>
+
+          <!-- 管理與匯入區塊 -->
+          <div id="admin-manage-section" class="hidden" style="display: flex; flex-direction: column; gap: 14px;">
+
+            <!-- 後台 Tab 標籤列 -->
+            <div class="admin-nav-tabs">
+              <button id="tab-btn-banks" class="admin-tab-btn active">📚 題庫管理與派送</button>
+              <button id="tab-btn-exams" class="admin-tab-btn">🎯 主題測驗管理</button>
+              <button id="tab-btn-records" class="admin-tab-btn">📊 學生作答分析與錯題本</button>
+              <button id="tab-btn-heroes" class="admin-tab-btn">🧙‍♂️ 勇者與關主數值調整</button>
+              <button id="tab-btn-images" class="admin-tab-btn">🖼️ 自訂圖片與 AI 生圖</button>
+              <button id="tab-btn-storage" class="admin-tab-btn">📂 本地檔案儲存說明</button>
+            </div>
+
+            <!-- Tab 1: 題庫管理與主題分類 -->
+            <div id="tab-panel-banks" class="admin-tab-panel">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span id="admin-banks-summary" style="font-size: 13px; color: #a4b0be;">已勾選 0 組題庫</span>
+                <button id="btn-show-dispatch-modal" class="jrpg-btn" style="background: #e67e22; color: #fff; font-weight: bold; font-size: 13px; padding: 6px 12px;">
+                  🚀 勾選題庫派送為主題測驗
+                </button>
+              </div>
+
+              <!-- 派送折疊面板 -->
+              <div id="dispatch-exam-panel" class="hidden" style="background: rgba(230, 126, 34, 0.15); border: 1px dashed #e67e22; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+                <div style="font-weight: bold; color: #f59e0b; font-size: 14px; margin-bottom: 8px;">
+                  🚀 將下方勾選的題庫組，派送發布為學生主題測驗：
+                </div>
+                <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+                  <input type="text" id="dispatch-exam-title" class="jrpg-input" style="flex: 2;" placeholder="測驗主題名稱（例如：六年級自然黑金魔法大考驗）">
+                  <input type="text" id="dispatch-exam-category" class="jrpg-input" style="flex: 1;" placeholder="主題分類（例如：自然生態）">
+                </div>
+                <input type="text" id="dispatch-exam-desc" class="jrpg-input" style="width: 100%; margin-bottom: 8px;" placeholder="測驗任務說明（例如：挑戰 15 道廚餘分類與堆肥題）">
+                <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                  <button id="btn-cancel-dispatch" class="jrpg-btn btn-secondary" style="padding: 4px 12px;">取消</button>
+                  <button id="btn-confirm-dispatch" class="jrpg-btn btn-primary-large" style="padding: 6px 16px; font-size: 13px;">確認發布並派送給學生</button>
+                </div>
+              </div>
+
+              <!-- 題庫清單容器 -->
+              <div id="admin-bank-list-container"></div>
+
+              <hr style="border: 0; border-top: 1px solid rgba(255, 255, 255, 0.1); margin: 16px 0;">
+
+              <!-- 匯入建立新題庫 -->
+              <div style="display: flex; flex-direction: column; gap: 10px;">
+                <div style="font-weight: bold; color: var(--gold-text); font-size: 15px;">➕ 匯入建立新題庫組（支援 CSV 一鍵匯入）</div>
+
+                <!-- Gemini AI 出題小幫手 -->
+                <div class="ai-prompt-helper-card">
+                  <div class="ai-prompt-header">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                      <span style="font-size: 16px;">🤖</span>
+                      <strong style="color: #a29bfe; font-size: 14px;">Gemini AI 出題專用 Prompt 範本</strong>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                      <a href="https://gemini.google.com" target="_blank" class="jrpg-btn btn-secondary" style="font-size: 11.5px; padding: 4px 10px; text-decoration: none;">🌐 開啟 Gemini</a>
+                      <button id="btn-copy-ai-prompt" class="jrpg-btn btn-copy-prompt">📋 一鍵複製出題 Prompt</button>
+                    </div>
+                  </div>
+                  <div class="ai-prompt-preview" id="ai-prompt-template-text">請根據以下提供的教材資料內容，為我生成多道四選一單選題，並嚴格依照以下 CSV 格式輸出，方便直接匯入遊戲系統：
+
+【輸出格式規範】
+每一行一道題目，欄位使用逗號分開，格式嚴格為：
+題目,正確答案編號,選項1,選項2,選項3,選項4,題目解析
+
+【規則說明】
+1. 正確答案編號填寫 1、2、3 或 4（代表選項1~4中的正確答案索引）。
+2. 全部題目與選項必須使用繁體中文。
+3. 題目與選項文字內請勿包含半形逗號「,」（若有請以頓號「、」取代）。
+4. 嚴禁輸出任何 Markdown 語法標記（如 ```csv），僅輸出純粹的 CSV 資料行。
+
+【教材資料內容】：
+[請在此貼上您的講義、文章或學習重點]</div>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                  <input type="text" id="admin-bank-name" class="jrpg-input" style="flex: 1.5;" placeholder="題庫名稱（例如：六年級生廚餘與熟廚餘辨識特訓）">
+                  <input type="text" id="admin-bank-category" class="jrpg-input" style="flex: 1;" placeholder="主題分類（例如：廚餘分類）">
+                  <input type="text" id="admin-bank-desc" class="jrpg-input" style="flex: 2;" placeholder="題庫描述備註（選填）">
+                </div>
+
+                <textarea id="admin-csv-textarea" class="admin-textarea" placeholder="在此貼上 CSV 內容（或 Gemini 生成的題目），格式：&#10;題目,正確答案編號(1-4),選項1,選項2,選項3,選項4,解析"></textarea>
+
+                <div style="display: flex; gap: 10px;">
+                  <button id="btn-create-bank" class="jrpg-btn btn-secondary" style="background: #059669; color: #fff; font-weight: bold; padding: 8px 16px;">📥 建立並儲存此組題庫</button>
+                  <button id="btn-load-sample-csv" class="jrpg-btn btn-secondary">📑 帶入示範 CSV 題目</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab 2: 主題測驗管理 -->
+            <div id="tab-panel-exams" class="admin-tab-panel hidden">
+              <div id="admin-exams-list-container"></div>
+            </div>
+
+            <!-- Tab 3: 學生作答分析與錯題本 -->
+            <div id="tab-panel-records" class="admin-tab-panel hidden">
+              <div style="display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 12px;">
+                <button id="btn-pack-mistakes" class="jrpg-btn" style="background: #e67e22; color: #fff; font-weight: bold; font-size: 13px; padding: 7px 14px;">
+                  📦 將本測驗學生錯題打包成新題庫
+                </button>
+                <button id="btn-clear-records" class="jrpg-btn" style="background: #b91c1c; color: #fff; font-weight: bold; font-size: 13px; padding: 7px 14px;">
+                  🗑️ 清除作答紀錄
+                </button>
+              </div>
+
+              <!-- 看板 -->
+              <div class="stats-dashboard-grid" style="margin-bottom: 14px;">
+                <div class="stat-card">
+                  <div class="stat-label">作答總人次</div>
+                  <div id="stat-total-students" class="stat-val">0</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">平均答對率</div>
+                  <div id="stat-avg-accuracy" class="stat-val" style="color: #34d399;">0%</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">平均冒險積分</div>
+                  <div id="stat-avg-score" class="stat-val" style="color: #fde047;">0</div>
+                </div>
+                <div id="card-stat-mistakes" class="stat-card" style="cursor: pointer;" title="點擊切換至錯題深度分析視圖">
+                  <div class="stat-label">累積錯題數 🔍</div>
+                  <div id="stat-total-mistakes" class="stat-val" style="color: #f87171;">0 題</div>
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 8px; margin-bottom: 12px; border-bottom: 2px solid rgba(255, 255, 255, 0.1); padding-bottom: 8px;">
+                <button id="view-btn-students" class="admin-tab-btn active">👥 學生作答歷程列表</button>
+                <button id="view-btn-mistakes" class="admin-tab-btn">📉 錯題深度分析排行榜</button>
+              </div>
+
+              <div id="student-records-container"></div>
+              <div id="mistake-analysis-container" class="hidden"></div>
+            </div>
+
+            <!-- Tab 4: 勇者與關主數值調整 -->
+            <div id="tab-panel-heroes" class="admin-tab-panel hidden">
+              <div style="display: flex; gap: 10px; margin-bottom: 14px; border-bottom: 2px solid rgba(255, 255, 255, 0.1); padding-bottom: 8px;">
+                <button id="subtab-btn-heroes" class="admin-tab-btn active">🧙‍♂️ 四大守護勇者設定</button>
+                <button id="subtab-btn-bosses" class="admin-tab-btn">👹 五大關卡魔王設定</button>
+              </div>
+
+              <div id="subpanel-heroes-config">
+                <div style="display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;" id="admin-hero-pills-row">
+                  <button type="button" class="admin-tab-btn admin-pill-btn active" data-hero-key="hero_purple">🟣 莫莫 (黑金魔法師)</button>
+                  <button type="button" class="admin-tab-btn admin-pill-btn" data-hero-key="hero_round">🟤 寇寇 (堆肥小勇士)</button>
+                  <button type="button" class="admin-tab-btn admin-pill-btn" data-hero-key="hero_syl">🐱 露露 (分類精靈)</button>
+                  <button type="button" class="admin-tab-btn admin-pill-btn" data-hero-key="hero_mul">🔴 嘟嘟 (熟食巡守俠)</button>
+                </div>
+
+                <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                    <div><label style="font-size: 11px; color: #94a3b8;">勇者姓名</label><input type="text" id="cfg-hero-name" class="jrpg-input" style="width: 100%;"></div>
+                    <div><label style="font-size: 11px; color: #94a3b8;">稱號階級</label><input type="text" id="cfg-hero-title" class="jrpg-input" style="width: 100%;"></div>
+                    <div><label style="font-size: 11px; color: #94a3b8;">普攻絕招名稱</label><input type="text" id="cfg-hero-attack-name" class="jrpg-input" style="width: 100%;"></div>
+                    <div><label style="font-size: 11px; color: #94a3b8;">辨識口訣</label><input type="text" id="cfg-hero-rhyme" class="jrpg-input" style="width: 100%;"></div>
+                  </div>
+                  <div style="margin-top: 8px;"><label style="font-size: 11px; color: #94a3b8;">背景介紹</label><input type="text" id="cfg-hero-desc" class="jrpg-input" style="width: 100%;"></div>
+                </div>
+
+                <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(250, 204, 21, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px;">
+                    <div><label style="font-size: 11px; color: #94a3b8;">HP 上限</label><input type="number" id="cfg-hero-hp" class="jrpg-input" style="width: 100%;"></div>
+                    <div><label style="font-size: 11px; color: #94a3b8;">MP 上限</label><input type="number" id="cfg-hero-mp" class="jrpg-input" style="width: 100%;"></div>
+                    <div><label style="font-size: 11px; color: #94a3b8;">攻擊力 (ATK)</label><input type="number" id="cfg-hero-atk" class="jrpg-input" style="width: 100%;"></div>
+                    <div><label style="font-size: 11px; color: #94a3b8;">暴擊率 (%)</label><input type="number" id="cfg-hero-crit-rate" class="jrpg-input" style="width: 100%;"></div>
+                    <div><label style="font-size: 11px; color: #94a3b8;">暴擊倍率</label><input type="number" id="cfg-hero-crit-mult" step="0.1" class="jrpg-input" style="width: 100%;"></div>
+                    <div><label style="font-size: 11px; color: #94a3b8;">被動減傷 (%)</label><input type="number" id="cfg-hero-dmg-red" class="jrpg-input" style="width: 100%;"></div>
+                  </div>
+                </div>
+
+                <!-- 三大特技 -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; margin-bottom: 12px;">
+                  <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid #ef4444; border-radius: 8px; padding: 10px;">
+                    <div style="font-weight: bold; color: #f87171; font-size: 12px; margin-bottom: 6px;">特技一：暴擊傷害</div>
+                    <div><label style="font-size: 11px; color: #94a3b8;">技能名稱</label><input type="text" id="cfg-s1-name" class="jrpg-input" style="width: 100%;"></div>
+                    <div style="display: flex; gap: 6px; margin: 4px 0;">
+                      <div style="flex:1;"><label style="font-size: 11px; color: #94a3b8;">MP 消耗</label><input type="number" id="cfg-s1-cost" class="jrpg-input" style="width: 100%;"></div>
+                      <div style="flex:1;"><label style="font-size: 11px; color: #94a3b8;">傷害倍率</label><input type="number" id="cfg-s1-mult" step="0.1" class="jrpg-input" style="width: 100%;"></div>
+                    </div>
+                    <div><label style="font-size: 11px; color: #94a3b8;">描述文字</label><input type="text" id="cfg-s1-desc" class="jrpg-input" style="width: 100%;"></div>
+                  </div>
+
+                  <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid #10b981; border-radius: 8px; padding: 10px;">
+                    <div style="font-weight: bold; color: #34d399; font-size: 12px; margin-bottom: 6px;">特技二：生命滋養</div>
+                    <div><label style="font-size: 11px; color: #94a3b8;">技能名稱</label><input type="text" id="cfg-s2-name" class="jrpg-input" style="width: 100%;"></div>
+                    <div style="display: flex; gap: 6px; margin: 4px 0;">
+                      <div style="flex:1;"><label style="font-size: 11px; color: #94a3b8;">MP 消耗</label><input type="number" id="cfg-s2-cost" class="jrpg-input" style="width: 100%;"></div>
+                      <div style="flex:1;"><label style="font-size: 11px; color: #94a3b8;">回復 HP</label><input type="number" id="cfg-s2-heal" class="jrpg-input" style="width: 100%;"></div>
+                      <div style="flex:1;"><label style="font-size: 11px; color: #94a3b8;">回復 MP</label><input type="number" id="cfg-s2-mana" class="jrpg-input" style="width: 100%;"></div>
+                    </div>
+                    <div><label style="font-size: 11px; color: #94a3b8;">描述文字</label><input type="text" id="cfg-s2-desc" class="jrpg-input" style="width: 100%;"></div>
+                  </div>
+
+                  <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid #38bdf8; border-radius: 8px; padding: 10px;">
+                    <div style="font-weight: bold; color: #38bdf8; font-size: 12px; margin-bottom: 6px;">特技三：洞察排除</div>
+                    <div><label style="font-size: 11px; color: #94a3b8;">技能名稱</label><input type="text" id="cfg-s3-name" class="jrpg-input" style="width: 100%;"></div>
+                    <div style="display: flex; gap: 6px; margin: 4px 0;">
+                      <div style="flex:1;"><label style="font-size: 11px; color: #94a3b8;">MP 消耗</label><input type="number" id="cfg-s3-cost" class="jrpg-input" style="width: 100%;"></div>
+                      <div style="flex:1;"><label style="font-size: 11px; color: #94a3b8;">排除數量</label><input type="number" id="cfg-s3-remove" class="jrpg-input" style="width: 100%;"></div>
+                    </div>
+                    <div><label style="font-size: 11px; color: #94a3b8;">描述文字</label><input type="text" id="cfg-s3-desc" class="jrpg-input" style="width: 100%;"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div id="subpanel-bosses-config" class="hidden">
+                <div style="display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;" id="admin-boss-pills-row">
+                  <button type="button" class="admin-tab-btn admin-pill-btn active" data-chapter-idx="0">第 1 關：浪費剩食怪</button>
+                  <button type="button" class="admin-tab-btn admin-pill-btn" data-chapter-idx="1">第 2 關：混雜垃圾魔</button>
+                  <button type="button" class="admin-tab-btn admin-pill-btn" data-chapter-idx="2">第 3 關：惡臭果蠅王</button>
+                  <button type="button" class="admin-tab-btn admin-pill-btn" data-chapter-idx="3">第 4 關：板結枯土巨魔</button>
+                  <button type="button" class="admin-tab-btn admin-pill-btn" data-chapter-idx="4">第 5 關：失衡異變巨神</button>
+                </div>
+
+                <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid #ef4444; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
+                    <div><label style="font-size: 11px; color: #94a3b8;">章節名稱</label><input type="text" id="cfg-boss-chapter-title" class="jrpg-input" style="width: 100%;"></div>
+                    <div><label style="font-size: 11px; color: #94a3b8;">關主敵人名稱</label><input type="text" id="cfg-boss-enemy-name" class="jrpg-input" style="width: 100%;"></div>
+                    <div><label style="font-size: 11px; color: #94a3b8;">魔王 HP 上限</label><input type="number" id="cfg-boss-hp" class="jrpg-input" style="width: 100%;"></div>
+                    <div><label style="font-size: 11px; color: #94a3b8;">反擊攻擊力 (ATK)</label><input type="number" id="cfg-boss-atk" class="jrpg-input" style="width: 100%;"></div>
+                    <div><label style="font-size: 11px; color: #94a3b8;">定時攻擊週期 (秒)</label><input type="number" id="cfg-boss-attack-interval" step="0.5" class="jrpg-input" style="width: 100%;"></div>
+                  </div>
+                  <div style="margin-top: 8px;"><label style="font-size: 11px; color: #94a3b8;">試煉情境說明</label><textarea id="cfg-boss-desc" class="jrpg-input" style="width: 100%; height: 50px;"></textarea></div>
+                </div>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+                <button id="btn-save-hero-config" class="jrpg-btn btn-primary-large" style="padding: 8px 24px; font-size: 14px;">💾 儲存數值設定至 config.json</button>
+              </div>
+            </div>
+
+            <!-- Tab 5: 自訂圖片與 AI 生圖 -->
+            <div id="tab-panel-images" class="admin-tab-panel hidden">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <span id="img-custom-badge-counter" style="background: #e67e22; color: #fff; font-size: 12px; padding: 2px 10px; border-radius: 12px;">自訂 0 / 20 張</span>
+                <div style="display: flex; gap: 8px;">
+                  <input type="file" id="input-zip-batch-upload" accept=".zip" style="display: none;">
+                  <button id="btn-upload-zip" class="jrpg-btn" style="background: #0284c7; color: #fff; font-size: 12px; padding: 6px 12px;">📦 壓縮檔批次上傳 (.zip)</button>
+                  <button id="btn-reset-all-images" class="jrpg-btn" style="background: #475569; color: #f87171; font-size: 12px; padding: 6px 12px;">🔄 全部恢復預設</button>
+                </div>
+              </div>
+
+              <!-- 20 張 AI 生圖 Prompt 產生器 -->
+              <div style="background: linear-gradient(135deg, rgba(30, 27, 75, 0.9), rgba(15, 23, 42, 0.95)); border: 1.5px solid #a855f7; border-radius: 12px; padding: 14px; margin-bottom: 14px;">
+                <div style="font-weight: 800; color: #c084fc; font-size: 14.5px; margin-bottom: 6px;">⚡ 20 張全套生圖 Prompt 模板產生器 (AI Agent 一鍵生成專用)</div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; margin-bottom: 8px;">
+                  <div>
+                    <label style="font-size: 11px; color: #fde047; font-weight: bold;">視覺美術風格 (Style)：</label>
+                    <input type="text" id="input-prompt-style" class="jrpg-input" style="width: 100%; font-size: 12px;" value="鳥山明熱血冒險風格">
+                    <div id="quick-style-tags" style="display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px;">
+                      <button type="button" class="quick-chip-btn active" data-val="鳥山明熱血冒險風格" style="font-size: 10px; padding: 2px 6px;">鳥山明動漫</button>
+                      <button type="button" class="quick-chip-btn" data-val="吉卜力清新水彩風" style="font-size: 10px; padding: 2px 6px;">吉卜力水彩</button>
+                      <button type="button" class="quick-chip-btn" data-val="復古 16-Bit 像素點陣日系電玩風" style="font-size: 10px; padding: 2px 6px;">像素復古風</button>
+                      <button type="button" class="quick-chip-btn" data-val="賽博龐克霓虹科技風" style="font-size: 10px; padding: 2px 6px;">賽博龐克</button>
+                    </div>
+                  </div>
+                  <div>
+                    <label style="font-size: 11px; color: #38bdf8; font-weight: bold;">故事世界觀主題 (Theme)：</label>
+                    <input type="text" id="input-prompt-theme" class="jrpg-input" style="width: 100%; font-size: 12px;" value="黑金魔法術永續食物循環">
+                    <div id="quick-theme-tags" style="display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px;">
+                      <button type="button" class="quick-chip-btn active" data-val="黑金魔法術永續食物循環" style="font-size: 10px; padding: 2px 6px;">黑金食物循環</button>
+                      <button type="button" class="quick-chip-btn" data-val="成語古詩仙俠冒險" style="font-size: 10px; padding: 2px 6px;">國語成語冒險</button>
+                      <button type="button" class="quick-chip-btn" data-val="幾何代數魔塔探險" style="font-size: 10px; padding: 2px 6px;">數學魔法探險</button>
+                      <button type="button" class="quick-chip-btn" data-val="星際航行英語巡航" style="font-size: 10px; padding: 2px 6px;">英語星際巡航</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                  <button id="btn-generate-all-prompts" class="jrpg-btn" style="background: #a855f7; color: #fff; font-size: 12px; padding: 6px 12px;">⚡ 產生任務指令</button>
+                  <button id="btn-copy-agent-full-task" class="jrpg-btn" style="background: #0284c7; color: #fff; font-size: 12px; padding: 6px 12px;">📋 一鍵複製全套 20 張指令</button>
+                </div>
+                <textarea id="agent-task-prompt-textarea" readonly style="width: 100%; height: 90px; background: rgba(0, 0, 0, 0.7); color: #f1f5f9; font-family: Consolas, monospace; font-size: 11px; padding: 8px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1);"></textarea>
+              </div>
+
+              <!-- 單張上傳 input -->
+              <input type="file" id="input-single-image-upload" accept="image/png,image/jpeg,image/webp" style="display: none;">
+              <!-- 圖片卡片容器 -->
+              <div id="admin-images-grid-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 10px;"></div>
+            </div>
+
+            <!-- Tab 6: 本地檔案儲存說明 -->
+            <div id="tab-panel-storage" class="admin-tab-panel hidden">
+              <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+                <button id="btn-refresh-storage" class="jrpg-btn btn-secondary" style="font-size: 12px; padding: 5px 12px;">🔄 重新整理檔案狀態</button>
+              </div>
+              <div id="storage-files-grid" style="display: flex; flex-direction: column; gap: 8px;"></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==============================================
+         5.1 學生作答詳情 Modal
+    ============================================== -->
+    <div id="student-detail-modal" class="modal-backdrop hidden" style="z-index: 1050;">
+      <div class="modal-window" style="max-width: 680px;">
+        <div class="modal-header">
+          <div id="student-detail-title" class="modal-title">📝 學生答題詳情分析</div>
+          <button id="btn-close-student-detail" class="modal-close-btn">&times;</button>
+        </div>
+        <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+          <div id="student-detail-summary" style="margin-bottom: 12px; font-size: 13px; color: #cbd5e1;"></div>
+          <div id="student-detail-questions-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==============================================
+         5.2 題庫題目編輯器 Modal
+    ============================================== -->
+    <div id="bank-questions-editor-modal" class="modal-backdrop hidden" style="z-index: 1060;">
+      <div class="modal-window" style="max-width: 840px;">
+        <div class="modal-header" style="background: linear-gradient(135deg, #064e3b, #059669);">
+          <div class="modal-title">✏️ 編輯題庫題目</div>
+          <button id="btn-close-bank-editor" class="modal-close-btn">&times;</button>
+        </div>
+        <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; background: rgba(15, 23, 42, 0.7); padding: 8px 12px; border-radius: 6px;">
+            <div style="font-size: 13px;">題庫名稱：<strong id="bank-editor-name" style="color: var(--gold-text);"></strong> <span id="bank-editor-count-badge" style="background: #10b981; color: #fff; padding: 2px 8px; border-radius: 8px; font-size: 11px;">0 題</span></div>
+            <button id="btn-editor-add-question" class="jrpg-btn" style="background: #27ae60; color: #fff; font-size: 12px; padding: 5px 12px;">➕ 新增一道題目</button>
+          </div>
+          <div id="bank-editor-questions-list" style="display: flex; flex-direction: column; gap: 12px;"></div>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; padding: 12px 20px; background: #0b0f19; border-top: 1px solid rgba(255,255,255,0.1);">
+          <button id="btn-cancel-bank-editor" class="jrpg-btn btn-secondary" style="padding: 6px 14px;">取消</button>
+          <button id="btn-save-bank-editor" class="jrpg-btn btn-primary-large" style="padding: 6px 18px;">💾 儲存所有修改</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==============================================
+         6. 通用提示 Modal (章節通關/失敗)
+    ============================================== -->
+    <div id="game-alert-modal" class="modal-backdrop hidden">
+      <div class="modal-window" style="max-width: 440px; padding: 24px; text-align: center;">
+        <div id="modal-alert-title" style="font-size: 20px; font-weight: 900; color: #fde047; margin-bottom: 10px;">章節突破！</div>
+        <div id="modal-alert-body" style="font-size: 14.5px; color: #cbd5e1; line-height: 1.5; margin-bottom: 20px;">恭喜突破！</div>
+        <button id="modal-alert-ok-btn" class="jrpg-btn btn-primary-large" style="width: 100%; font-size: 16px; padding: 10px;">確定</button>
+      </div>
+    </div>
+
+    <!-- ==============================================
+         7. 完全通關慶典與錯題複習全螢幕 Modal (Grand Ending)
+    ============================================== -->
+    <div id="game-clear-modal" class="modal-backdrop hidden ending-modal-backdrop">
+      <canvas id="ending-confetti-canvas" class="ending-confetti-canvas"></canvas>
+
+      <div class="ending-main-window">
+        <!-- A. 通關動畫舞台 -->
+        <div id="ending-cutscene-view">
+          <button id="btn-ending-skip" class="jrpg-btn btn-secondary" style="float: right; font-size: 12px; padding: 4px 12px;">📜 前往成果報告書 ➔</button>
+          <div style="text-align: center; margin-top: 10px;">
+            <div class="ending-super-badge">★ ALL 5 STAGES CLEARED ★</div>
+            <h1 class="ending-grand-title">🎉 黑色黃金奇蹟！全五關大圓滿！</h1>
+            <p style="color: #a7f3d0; font-size: 15px; font-weight: 700;">~ 土地到餐桌再回歸土地 · 生命永續循環傳承 ~</p>
+          </div>
+
+          <div class="ending-heroes-grid">
+            <div class="ending-hero-card">
+              <div class="ending-hero-avatar-halo"><img src="assets/images/avatar_purple.png" alt="莫莫"></div>
+              <div class="ending-hero-name">莫莫 Momo</div>
+              <div style="font-size: 11px; color: #a7f3d0;">黑金魔法師</div>
+              <div class="ending-hero-quote">「看著枯葉化為肥沃黑金，大自然就是最偉大的鍊金師！」</div>
+            </div>
+            <div class="ending-hero-card">
+              <div class="ending-hero-avatar-halo"><img src="assets/images/avatar_round.png" alt="寇寇"></div>
+              <div class="ending-hero-name">寇寇 Koko</div>
+              <div style="font-size: 11px; color: #38bdf8;">堆肥小勇士</div>
+              <div class="ending-hero-quote">「哈哈！勤翻堆、有通氣，小幼苗就能長成健康大森林！」</div>
+            </div>
+            <div class="ending-hero-card">
+              <div class="ending-hero-avatar-halo"><img src="assets/images/avatar_syl.png" alt="露露"></div>
+              <div class="ending-hero-name">露露 Lulu</div>
+              <div style="font-size: 11px; color: #fde047;">分類精靈</div>
+              <div class="ending-hero-quote">「生熟廚餘分得好，塑膠雜物不准進，源頭乾淨循環才順利！」</div>
+            </div>
+            <div class="ending-hero-card">
+              <div class="ending-hero-avatar-halo"><img src="assets/images/avatar_mul.png" alt="嘟嘟"></div>
+              <div class="ending-hero-name">嘟嘟 Dudu</div>
+              <div style="font-size: 11px; color: #f87171;">熟食巡守俠</div>
+              <div class="ending-hero-quote">「哼哼！吃飽飽不浪費，每一粒米都是土地的珍貴禮物！」</div>
+            </div>
+          </div>
+
+          <div style="text-align: center; margin-top: 16px;">
+            <button id="btn-ending-continue" class="jrpg-btn btn-primary-large" style="padding: 10px 28px; font-size: 16px;">📜 進入成果報告書與錯題複習 ➔</button>
+          </div>
+        </div>
+
+        <!-- B. 成果報告書與錯題深度複習 -->
+        <div id="ending-review-view" class="hidden">
+          <div style="text-align: center; margin-bottom: 16px;">
+            <h2 style="font-size: 26px; font-weight: 900; color: #fde047;">🏆 黑金循環冒險成果報告書</h2>
+            <p style="font-size: 13px; color: #94a3b8;">恭喜完成食物循環大冒險！檢視你的冒險成就並鞏固生態智慧！</p>
+          </div>
+
+          <div class="ending-stats-dashboard">
+            <div class="ending-stat-box">
+              <span class="stat-label">👤 冒險勇者</span>
+              <div id="ending-student-name" class="stat-val text-gold">小冒險家</div>
+            </div>
+            <div class="ending-stat-box">
+              <span class="stat-label">🌟 最終生態積分</span>
+              <div id="final-score-val" class="stat-val text-gold">0</div>
+            </div>
+            <div class="ending-stat-box">
+              <span class="stat-label">🎯 全程答對率</span>
+              <div id="ending-accuracy-val" class="stat-val text-green">100%</div>
+            </div>
+            <div class="ending-stat-box">
+              <span class="stat-label">📝 答對 / 答錯題數</span>
+              <div class="stat-val text-blue">
+                <span id="ending-correct-q-count">0</span> / <span id="ending-wrong-q-count">0</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; font-size: 12px; color: #cbd5e1; margin-bottom: 4px;">
+              <span>總題數：<strong id="ending-total-q-count">0</strong> 題</span>
+              <span>正確率進度條</span>
+            </div>
+            <div style="height: 12px; background: rgba(0,0,0,0.6); border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+              <div id="ending-progress-bar-fill" style="height: 100%; width: 100%; background: linear-gradient(90deg, #059669, #10b981);"></div>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-weight: 800; color: #fde047; font-size: 15px;">📝 闖關錯題深度複習筆記</span>
+              <span id="ending-mistakes-badge" style="background: rgba(239, 68, 68, 0.2); color: #f87171; font-size: 11px; padding: 2px 8px; border-radius: 10px;">共 0 題</span>
+            </div>
+            <div id="ending-mistakes-list" style="max-height: 240px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;"></div>
+          </div>
+
+          <div style="display: flex; gap: 10px; justify-content: center;">
+            <button id="btn-ending-restart" class="jrpg-btn btn-secondary" style="padding: 8px 18px;">🔄 重新開始挑戰</button>
+            <button id="btn-ending-tomap" class="jrpg-btn btn-secondary" style="padding: 8px 18px;">🗺️ 返回生態地圖</button>
+            <button id="btn-ending-tohome" class="jrpg-btn btn-primary-large" style="padding: 8px 22px;">🏠 返回遊戲主選單</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ==============================================
+         8. 課堂討論全畫面簡報模式 Modal (Presentation Mode)
+    ============================================== -->
+    <div id="presentation-modal" class="presentation-backdrop hidden">
+      <div class="presentation-window">
+        <!-- 頂部工具列 -->
+        <div class="pres-header">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span class="pres-mode-tag">📽️ 課堂討論簡報模式</span>
+            <span id="pres-rank-badge" style="background: #f59e0b; color: #fff; font-size: 12px; font-weight: bold; padding: 2px 10px; border-radius: 10px;">🥇 第一常錯題</span>
+            <span id="pres-tag-category" style="background: rgba(16, 185, 129, 0.2); color: #34d399; font-size: 12px; padding: 2px 10px; border-radius: 10px;">🏷️ 分類考驗</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span id="pres-page-indicator" style="font-size: 14px; font-weight: bold; color: #fde047;">第 1 / 5 題</span>
+            <div style="width: 100px; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden;">
+              <div id="pres-mini-progress-fill" style="height: 100%; width: 20%; background: #10b981;"></div>
+            </div>
+          </div>
+          <div>
+            <button id="btn-pres-toggle-answer" class="pres-tool-btn">👁️ 答案開關 (H)</button>
+            <button id="btn-pres-fullscreen" class="pres-tool-btn">⛶ 全螢幕 (F)</button>
+            <button id="btn-close-presentation" class="pres-close-btn">✖ 退出簡報 (ESC)</button>
+          </div>
+        </div>
+
+        <!-- 簡報主舞台幻燈片投影區 (大字高對比) -->
+        <div class="pres-body">
+          <div style="max-width: 1000px; width: 100%; margin: 0 auto;">
+            <!-- 數據條 -->
+            <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 20px; background: rgba(15, 23, 42, 0.7); padding: 12px 20px; border-radius: 12px;">
+              <span style="color: #f87171; font-size: 16px; font-weight: bold;">❌ 全班答錯：<strong id="pres-wrong-count">0</strong> 人</span>
+              <span style="color: #34d399; font-size: 16px; font-weight: bold;">✅ 全班答對：<strong id="pres-correct-count">0</strong> / <span id="pres-total-count">0</span> 人</span>
+              <span style="color: #fde047; font-size: 16px; font-weight: bold;">📊 答對率：<strong id="pres-accuracy-val">0%</strong></span>
+              <div style="flex: 1; height: 10px; background: rgba(0,0,0,0.5); border-radius: 5px; overflow: hidden; display: flex;">
+                <div id="pres-ratio-correct" style="height: 100%; background: #10b981; width: 50%;"></div>
+                <div id="pres-ratio-wrong" style="height: 100%; background: #ef4444; width: 50%;"></div>
+              </div>
+            </div>
+
+            <!-- 題目內容大字區 -->
+            <div id="pres-question-text" class="pres-question-text">題目載入中...</div>
+
+            <!-- 四個選項大字卡片 -->
+            <div id="pres-options-container" class="pres-options-grid"></div>
+
+            <!-- 教學觀念詳解 -->
+            <div id="pres-explanation-box" class="pres-explanation-card">
+              <strong style="color: #34d399; font-size: 16px;">💡 教學引導與觀念詳解：</strong>
+              <div id="pres-explanation-text" style="margin-top: 6px;"></div>
+            </div>
+
+            <!-- 答錯學生討論名單 -->
+            <div id="pres-students-box" style="margin-top: 14px; background: rgba(30, 41, 59, 0.6); padding: 12px 18px; border-radius: 10px;">
+              <div style="font-size: 13.5px; font-weight: bold; color: #f87171; margin-bottom: 6px;">
+                👥 答錯學生與其選答迷思（共 <span id="pres-wrong-students-count">0</span> 人）：
+              </div>
+              <div id="pres-students-list" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 簡報底部導覽控制列 -->
+        <div class="pres-footer">
+          <button id="btn-pres-prev" class="pres-nav-btn">◀ 上一題 (←)</button>
+          <span style="font-size: 12px; color: #94a3b8;">⌨️ 鍵盤快捷鍵：[←] 上一題 ｜ [→]/[空白] 下一題 ｜ [H] 答案開關 ｜ [F] 全螢幕 ｜ [ESC] 退出</span>
+          <button id="btn-pres-next" class="pres-nav-btn">下一題 ▶ (→)</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 引入 JavaScript 模組 (防快取版本) -->
+  <script src="js/audio.js?v=20261004"></script>
+  <script src="js/data.js?v=20261004"></script>
+  <script src="js/admin.js?v=20261004"></script>
+  <script src="js/worldmap.js?v=20261004"></script>
+  <script src="js/battle.js?v=20261004"></script>
+  <script src="js/main.js?v=20261004"></script>
+</body>
+</html>
